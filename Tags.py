@@ -30,7 +30,7 @@ def index():
     results = cur.fetchall()
     return '''<h1>{}<h1>'''.format(results)
 
-#curl --include -u kunal:kunal --verbose --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]}' http://localhost:5100/new_tag/1
+#curl --include --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]^C http://localhost:5000/new_tag/5
 @app.route('/new_tag/<article_id>', methods = ['POST'])
 def api_new_tag(article_id):
     print("parag here")
@@ -71,7 +71,7 @@ def api_new_tag(article_id):
             else:
                 return jsonify(message="Failed"),409
 
-#curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
+#curl --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
 @app.route('/remove_tags/<article_id>', methods = ['DELETE'])
 def api_remove_tags(article_id):
     cur = get_db().cursor()
@@ -90,7 +90,7 @@ def api_remove_tags(article_id):
         else:
             return jsonify(message="Tags Deletion Failed"), 409
 
-#curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: application/json' http://localhost:5100/get_articles_for_tag/<tag_id>
+#curl --request GET --header 'Content-Type: application/json' http://localhost:5100/get_articles_for_tag/<tag_id>
 @app.route('/get_articles_for_tag/<tag_id>', methods = ['GET'])
 def api_get_articles_for_tag(tag_id):
     cur = get_db().cursor()
@@ -119,7 +119,7 @@ def api_get_articles_for_tag(tag_id):
             else:
                 return jsonify(message="Failed"), 409
 
-#curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: application/json' http://localhost:5100/get_tags/<article_id>
+#curl --request GET --header 'Content-Type: application/json' http://localhost:5100/get_tags/<article_id>
 @app.route('/get_tags/<article_id>', methods = ['GET'])
 def api_get_tags(article_id):
     cur = get_db().cursor()
