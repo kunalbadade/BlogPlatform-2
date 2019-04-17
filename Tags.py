@@ -23,26 +23,6 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-def auth_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        username = request.authorization["username"]
-        password = request.authorization["password"]
-        if check_auth(username, password):
-            return f(*args, **kwargs)
-        else:
-            make_response('Could not verify',401, {'WWW-Authenticate':'Basic realm="Login Required"'})
-    return decorated
-
-def check_auth(username, password):
-    cur = get_db().cursor()
-    cur.execute('SELECT user_name, password FROM users WHERE user_name=?',(username,))
-    row = cur.fetchone()
-    if row and row[0] == username and pbkdf2_sha256.verify(password, row[1]):
-        return True
-    else:
-        return False
-
 @app.route("/")
 def index():
     cur = get_db().cursor()
@@ -69,12 +49,13 @@ def api_new_tag(article_id):
         try:
             data = request.get_json()
             tags = request.get_json()['tags']
-            article_url = request.get_json()['article_url']
+            article_url = 'http://127.0.0.1:5000/articles/' + str(article_id)
             for tag in tags:
                 cur.execute('SELECT * from tags where tag_name = ? and article_id = ?',(tag, article_id))
                 results = cur.fetchall()
                 if len(results) == 0:
                     cur.execute('insert into tags (tag_name, article_id, article_url) values(?,?,?);',(tag, article_id, article_url,))
+                    newTagId = cur.lastrowid
                     get_db().commit()
                     statusCode = True
         except:
@@ -92,12 +73,11 @@ def api_new_tag(article_id):
 
 #curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
 @app.route('/remove_tags/<article_id>', methods = ['DELETE'])
-@auth_required
 def api_remove_tags(article_id):
     cur = get_db().cursor()
     status_code :bool= False
     try:
-        cur.execute("DELETE FROM article_tags WHERE article_id = ?",(article_id,))
+        cur.execute("DELETE FROM tags WHERE article_id = ?",(article_id,))
         get_db().commit()
         if cur.rowcount >= 1:
             status_code = True
@@ -117,8 +97,10 @@ def api_get_articles_for_tag(tag_id):
     no_tags_found:bool = False
     status_code:bool = False
     try:
-        cur.execute("SELECT url FROM articles WHERE article_id IN (SELECT article_id FROM article_tags WHERE tag_id = ?)",(tag_id,))
+        print("here")
+        cur.execute('SELECT article_url from tags where tag_id = ?',(tag_id,))
         articles = cur.fetchall()
+        print(len(articles))
         if len(articles) != 0:
             status_code = True
         else:
@@ -144,10 +126,13 @@ def api_get_tags(article_id):
     no_tags_found = False
     status_code = False
     try:
-        cur.execute('SELECT article_id FROM articles WHERE article_id = ?',(article_id,))
-        isArticleIDpresent = cur.fetchone()
+        print("here wjo")
+        cur.execute('SELECT article_id FROM tags WHERE article_id = ?',(article_id,))
+        print("kay zala")
+        isArticleIDpresent = cur.fetchall()
         if isArticleIDpresent != None:
-            cur.execute("SELECT tag_name FROM tags WHERE tag_id IN (SELECT tag_id FROM article_tags WHERE article_id =?)",(article_id,))
+            print("ata ithe")
+            cur.execute('SELECT tag_name FROM tags WHERE article_id = ?',(article_id,))
             tags = cur.fetchall()
             if len(tags) != 0:
                 status_code = True
