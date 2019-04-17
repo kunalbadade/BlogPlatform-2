@@ -18,12 +18,12 @@ CREATE TABLE comments(comment_id INTEGER NOT NULL PRIMARY KEY,
 
 sqlite3 TagsDb.db
 
-CREATE TABLE tags( tag_id INTEGER PRIMARY KEY,
+CREATE TABLE tags( tag_id INTEGER PRIMARY KEY AUTOINCREMENT,
 		   tag_name TEXT NOT NULL);
 
 ALTER TABLE tags ADD COLUMN article_id INTEGER;
 
-ALTER TABLE tags ADD COLUMN article_id INTEGER;
+ALTER TABLE tags ADD COLUMN article_url TEXT;
 
 sqlite3 UsersDb.db
 
