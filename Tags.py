@@ -1,9 +1,10 @@
 from flask import Flask, request, url_for, jsonify, json, g
-#from flask_restful import Api, Resource, reqparse
+'''from flask_restful import Api, Resource, reqparse'''
 import sqlite3
 import sys
 from datetime import datetime
 from functools import wraps
+from passlib.hash import pbkdf2_sha256
 
 #db_connect = create_engine('sqlite:///blog.db')
 DATABASE = '/home/student/Downloads/BlogPlatform2/TagsDb'
@@ -25,57 +26,41 @@ def close_connection(exception):
 @app.route("/")
 def index():
     cur = get_db().cursor()
-    cur.execute('SELECT * FROM articles;')
+    cur.execute('SELECT * FROM tags;')
     results = cur.fetchall()
     return '''<h1>{}<h1>'''.format(results)
 
-#curl --include -u kunal:kunal --verbose --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]}' http://localhost:5100/new_tag/1
-#curl --include --verbose --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]}' http://localhost:5100/new_tag/1
+#curl --include --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]}' http://localhost:5000/new_tag/5
 @app.route('/new_tag/<article_id>', methods = ['POST'])
 def api_new_tag(article_id):
-    print ("article_id" + article_id)
     data = None
     articleId = None
+    article_url = None
     tagData = None
     lastRowId = None
-    print("request.method "  + request.method)
+    newTagId = None
+    statusCode = None
     if request.method == 'POST':
-        print("parag")
         statusCode:bool = False
         cur = get_db().cursor()
         try:
-            #print("chetana  " + request.get_json())
             data = request.get_json()
-            print("Me ithe ahe")
-            #print("data " + data)
-            tags = data['tags']
-            print("tgs:" + tags[0])
-            article_url = 'http://127.0.0.1:5000/articles/' + str(article_id)
-            print("article_url " + article_url)
+            tags = request.get_json()['tags']
+            article_url = 'http://127.0.0.1/articles/' + str(article_id)
             for tag in tags:
-                '''cur.execute('SELECT tag_id from tags where tag_name = ?', (tag,))
-                tagData = cur.fetchall()
-                print("tagData:"+ len(tagData))
-                if len(tagData) == 0:'''
-                print("Me if madhe alo")
-                cur.execute('INSERT INTO tags (tag_name,article_id,article_url) VALUES (?,?,?)',(tag,article_id,article_url))
-                statusCode = True
-                newTagId = cur.lastrowid
-                get_db().commit()
-                '''else:
-                    print("Me else madhe ahe")
-                    newTagId = tagData[0][0]
+                cur.execute('SELECT * from tags where tag_name = ? and article_id = ?',(tag, article_id))
+                results = cur.fetchall()
+                if len(results) == 0:
+                    cur.execute('insert into tags (tag_name, article_id, article_url) values(?,?,?);',(tag, article_id, article_url,))
+                    newTagId = cur.lastrowid
                     get_db().commit()
-                    if newTagId != None:
-                        statusCode = True
-                    else:
-                        statusCode = False'''
+                    statusCode = True
         except:
             get_db().rollback()
             statusCode = False
         finally:
             if statusCode:
-                url = 'http://127.0.0.1:5100/tags/' + str(newTagId)
+                url = 'http://127.0.0.1/tags/' + str(newTagId)
                 resp = jsonify(data)
                 resp.status_code = 201
                 resp.headers['Link'] = url
@@ -83,7 +68,7 @@ def api_new_tag(article_id):
             else:
                 return jsonify(message="Failed"),409
 
-#curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
+#curl --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
 @app.route('/remove_tags/<article_id>', methods = ['DELETE'])
 def api_remove_tags(article_id):
     cur = get_db().cursor()
@@ -102,15 +87,17 @@ def api_remove_tags(article_id):
         else:
             return jsonify(message="Tags Deletion Failed"), 409
 
-#curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: application/json' http://localhost:5100/get_articles_for_tag/<tag_id>
+#curl --request GET --header 'Content-Type: application/json' http://localhost:5100/get_articles_for_tag/<tag_id>
 @app.route('/get_articles_for_tag/<tag_id>', methods = ['GET'])
 def api_get_articles_for_tag(tag_id):
     cur = get_db().cursor()
     no_tags_found:bool = False
     status_code:bool = False
     try:
-        cur.execute("SELECT article_url FROM tags WHERE tags_id = ?)",(tag_id,))
+        print("here")
+        cur.execute('SELECT article_url from tags where tag_id = ?',(tag_id,))
         articles = cur.fetchall()
+        print(len(articles))
         if len(articles) != 0:
             status_code = True
         else:
@@ -129,19 +116,26 @@ def api_get_articles_for_tag(tag_id):
             else:
                 return jsonify(message="Failed"), 409
 
-#curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: application/json' http://localhost:5100/get_tags/<article_id>
+#curl --request GET --header 'Content-Type: application/json' http://localhost:5100/get_tags/<article_id>
 @app.route('/get_tags/<article_id>', methods = ['GET'])
 def api_get_tags(article_id):
     cur = get_db().cursor()
     no_tags_found = False
     status_code = False
     try:
-        cur.execute("SELECT tag_name FROM tags WHERE article_id =?",(article_id,))
-        tags = cur.fetchall()
-        if len(tags) != 0:
-            status_code = True
+        print("here wjo")
+        cur.execute('SELECT article_id FROM tags WHERE article_id = ?',(article_id,))
+        print("kay zala")
+        isArticleIDpresent = cur.fetchall()
+        if isArticleIDpresent != None:
+            print("ata ithe")
+            cur.execute('SELECT tag_name FROM tags WHERE article_id = ?',(article_id,))
+            tags = cur.fetchall()
+            if len(tags) != 0:
+                status_code = True
+            else:
+                no_tags_found = True
         else:
-            no_tags_found = True
             status_code = False
     except:
         get_db().rollback()
@@ -169,7 +163,7 @@ def not_found(error=None):
     return 404
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug = True)
 #class Article(Resource):
 #    def get(self, name):
 #        conn = db_conneect .connnect()
