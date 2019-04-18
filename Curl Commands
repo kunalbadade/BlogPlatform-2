@@ -28,9 +28,9 @@ curl --include --verbose --request GET --header 'Content-Type: application/json'
 
 PUT
 
-curl -u kunal:kunal --include --verbose --request PUT --header 'Content-Type: application/json' --data '{"article_title":"SomethingFancy","article_content":"SomethingFancy"}' http://localhost/articles/5
+curl -u kunal:kunal --include --verbose --request PUT --header 'Content-Type: application/json' --data '{"article_title":"SomethingFancy","article_content":"SomethingFancy"}' http://localhost/articles/update/5
 
-curl -u kunal:k --include --verbose --request PUT --header 'Content-Type: application/json' --data '{"article_title":"nt":"SomethingFancy"}' http://localhost/articles/5
+curl -u kunal:k --include --verbose --request PUT --header 'Content-Type: application/json' --data '{"article_title":"nt":"SomethingFancy"}' http://localhost/articles/update/5
 
 
 User.py

@@ -9,7 +9,6 @@ app = Flask(__name__)
 def auth_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        print("I am in decorated function")
         if(request.authorization != None and request.authorization["username"] != None and request.authorization["password"] != None):
             username = request.authorization["username"]
             password = request.authorization["password"]

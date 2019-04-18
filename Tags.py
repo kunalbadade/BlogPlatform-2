@@ -94,7 +94,6 @@ def api_get_articles_for_tag(tag_id):
     no_tags_found:bool = False
     status_code:bool = False
     try:
-        print("here")
         cur.execute('SELECT article_url from tags where tag_id = ?',(tag_id,))
         articles = cur.fetchall()
         print(len(articles))
@@ -123,12 +122,9 @@ def api_get_tags(article_id):
     no_tags_found = False
     status_code = False
     try:
-        print("here wjo")
         cur.execute('SELECT article_id FROM tags WHERE article_id = ?',(article_id,))
-        print("kay zala")
         isArticleIDpresent = cur.fetchall()
         if isArticleIDpresent != None:
-            print("ata ithe")
             cur.execute('SELECT tag_name FROM tags WHERE article_id = ?',(article_id,))
             tags = cur.fetchall()
             if len(tags) != 0:
