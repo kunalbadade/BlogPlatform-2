@@ -40,14 +40,18 @@ def api_new_comment():
         data = request.get_json()
         article_id = data['article_id']
         comment_content = data['comment_content']
-        comment_id = data['comment_id']
+        #comment_id = data['comment_id']
         cur = get_db().cursor()
         if not request.authorization:
-            user_name = "Anonymous Coward"
+             user_name = "Anonymous Coward"
         else:
             user_name = request.authorization["username"]
         try:
-            cur.execute('INSERT INTO comments (comment_id, comment_content, article_id, user_name, createstamp) VALUES (?,?,?,?,?);',(comment_id, comment_content, article_id, user_name, date))
+            cur.execute('SELECT MAX(comment_id) FROM comments;')
+            lastCommentId = cur.fetchone()[0]
+            if lastCommentId != None:
+               lastCommentId += 1
+            cur.execute('INSERT INTO comments (comment_id, comment_content, article_id, user_name, createstamp) VALUES (?,?,?,?,?);',(lastCommentId, comment_content, article_id, user_name, date))
             get_db().commit()
             if cur.rowcount >= 1:
                 statusCode = 1
@@ -58,7 +62,7 @@ def api_new_comment():
             statusCode = 0
         finally:
             if statusCode == 1:
-                url = 'http://127.0.0.1:5300/new_comment/' + str(lastCommentId)
+                url = 'http://127.0.0.1/new_comment/' + str(lastCommentId)
                 resp = jsonify(data)
                 resp.status_code = 201
                 resp.headers['Link'] = url
