@@ -3,7 +3,7 @@ from functools import wraps
 from passlib.hash import pbkdf2_sha256
 import sqlite3
 
-DATABASE = '/home/student/github/Blog_Database.db'
+DATABASE = '/home/student/github/usersDb'
 app = Flask(__name__)
 
 def auth_required(f):
@@ -42,7 +42,6 @@ def close_connection(exception):
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
-
 
 def api_root():
     return "Welcome"

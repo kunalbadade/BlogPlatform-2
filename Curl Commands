@@ -37,7 +37,6 @@ User.py
 
 Create User
 
-
 curl --include --verbose --request POST --header 'Content-Type: application/json' --data '{"user_name" : "Heath", "password" : "Ledger"}' http://localhost/create_user
 
 
@@ -46,6 +45,7 @@ curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type:
 
 Change Password
 curl -u Heath:Ledger -i --request PATCH --header 'Content-Type: application/json' --data '{"user_name" : "Heath","old_password" : "Ledger", "password" : "Joker"}' http://localhost/change_password
+
 
 Tags.py
 
@@ -61,11 +61,18 @@ curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: ap
 Get Tags
 curl -u kunal:kunal --include --verbose --request GET --header 'Content-Type: application/json' http://localhost/get_tags/1
 
-Delete Comment
-curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type: application/json' http://localhost/comments/delete/21
+
+Comments.py
+
+New Comment
+curl --include --verbose --request POST --header 'Content-Type: application/json' --data '{"article_id":"2","comment_content":"NavinComment1"}' http://localhost/new_comment
 
 Get comment count
 curl --include --verbose --request GET --header 'Content-Type: application/json' http://localhost/comments/getcommentcount/1
 
 Get n comments
 curl --include --verbose --request GET --data '{"n":"2"}' --header 'Content-Type: application/json' http://localhost/comments/getncomments/1
+
+Delete Comment
+curl -u kunal:kunal --include --verbose --request DELETE --header 'Content-Type: application/json' http://localhost/comments/delete/21
+

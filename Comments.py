@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 #db_connect = create_engine('sqlite:///blog.db')
-DATABASE = '/home/student/Downloads/BlogPlatform2/commentsDb'
+DATABASE = '/home/student/github/commentsDb'
 app = Flask(__name__)
 #api = Api(app)
 
@@ -40,10 +40,9 @@ def api_new_comment():
         data = request.get_json()
         article_id = data['article_id']
         comment_content = data['comment_content']
-        #comment_id = data['comment_id']
         cur = get_db().cursor()
         if not request.authorization:
-             user_name = "Anonymous Coward"
+            user_name = "Anonymous Coward"
         else:
             user_name = request.authorization["username"]
         try:

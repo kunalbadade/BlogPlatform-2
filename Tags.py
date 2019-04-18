@@ -7,7 +7,7 @@ from functools import wraps
 from passlib.hash import pbkdf2_sha256
 
 #db_connect = create_engine('sqlite:///blog.db')
-DATABASE = '/home/student/Desktop/github/BlogPlatform2/Blog_Database.db'
+DATABASE = '/home/student/github/tagsDb'
 app = Flask(__name__)
 #api = Api(app)
 
@@ -30,10 +30,9 @@ def index():
     results = cur.fetchall()
     return '''<h1>{}<h1>'''.format(results)
 
-#curl --include --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]^C http://localhost:5000/new_tag/5
+#curl --include --request POST --header 'Content-Type: application/json' --data '{"tags":["tag3","tag4"]}' http://localhost:5000/new_tag/5
 @app.route('/new_tag/<article_id>', methods = ['POST'])
 def api_new_tag(article_id):
-    print("parag here")
     data = None
     articleId = None
     article_url = None
@@ -41,15 +40,13 @@ def api_new_tag(article_id):
     lastRowId = None
     newTagId = None
     statusCode = None
-    print(article_id)
-    print(request.get_json())
     if request.method == 'POST':
         statusCode:bool = False
         cur = get_db().cursor()
         try:
             data = request.get_json()
             tags = request.get_json()['tags']
-            article_url = 'http://127.0.0.1:5000/articles/' + str(article_id)
+            article_url = 'http://127.0.0.1/articles/' + str(article_id)
             for tag in tags:
                 cur.execute('SELECT * from tags where tag_name = ? and article_id = ?',(tag, article_id))
                 results = cur.fetchall()
@@ -63,7 +60,7 @@ def api_new_tag(article_id):
             statusCode = False
         finally:
             if statusCode:
-                url = 'http://127.0.0.1:5100/tags/' + str(newTagId)
+                url = 'http://127.0.0.1/tags/' + str(newTagId)
                 resp = jsonify(data)
                 resp.status_code = 201
                 resp.headers['Link'] = url
