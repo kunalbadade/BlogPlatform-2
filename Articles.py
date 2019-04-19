@@ -168,13 +168,10 @@ def api_update_article(article_id):
         statusCode:bool = False
         cur = get_db().cursor()
         try:
-            print("ithe")
             data = request.get_json()
-            print("asasasasas")
             article_content = data['article_content']
             article_title = data['article_title']
             now = datetime.now()
-            print("Something is fine")
             cur.execute('UPDATE articles SET article_title = ?, article_content = ?, updatestamp = ? where article_id = ?',(article_title, article_content, now, article_id))
             get_db().commit()
             if cur.rowcount >= 1:

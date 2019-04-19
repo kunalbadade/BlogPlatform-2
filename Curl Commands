@@ -10,7 +10,7 @@ curl -u kunal:aasas --include --verbose --request DELETE --header 'Content-Type:
 
 POST
 
-curl -u kunal:kunal --include --verbose --request POST --header 'Content-Type: application/json' --data '{"article_content":"Harley","article_title":"Quinn","tags":["tag1","tag5"]}' http://localhost/new_article
+curl -u kunal:kunal --include --verbose --request POST --header 'Content-Type: application/json' --data '{"article_content":"Harley","article_title":"Quinn"}' http://localhost/new_article
 
 GET
 
