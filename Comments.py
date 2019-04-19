@@ -29,7 +29,7 @@ def index():
     return '''<h1>{}<h1>'''.format(results)
 
 #curl --include --verbose --request POST --header 'Content-Type: application/json' --data '{"article_id":"2","comment_content":"Comment1"}' http://localhost:5000/new_comment
-@app.route('/new_comment', methods = ['POST', 'GET'])
+@app.route('/new_comment', methods = ['POST'])
 def api_new_comment():
     statusCode = 0
     data = None
@@ -49,7 +49,7 @@ def api_new_comment():
             cur.execute('SELECT MAX(comment_id) FROM comments;')
             lastCommentId = cur.fetchone()[0]
             if lastCommentId != None:
-               lastCommentId += 1
+                lastCommentId += 1
             cur.execute('INSERT INTO comments (comment_id, comment_content, article_id, user_name, createstamp) VALUES (?,?,?,?,?);',(lastCommentId, comment_content, article_id, user_name, date))
             get_db().commit()
             if cur.rowcount >= 1:

@@ -55,19 +55,6 @@ def api_new_article():
             now = datetime.now()
             cur.execute('INSERT INTO articles (article_title, article_content, user_name, createstamp, updatestamp, url) VALUES (?,?,?,?,?,?);',(article_title, article_content, username, now, now, url))
             articleId = cur.lastrowid
-            '''tags = data.get("tags",0)
-            if tags != 0:
-                newTagId = None
-                for tag in tags:
-                    cur.execute('SELECT tag_id, tag_name FROM tags WHERE tag_name = ?;',(tag,))
-                    tagData = cur.fetchall()
-                    if len(tagData) == 0:
-                        cur.execute('INSERT INTO tags (tag_name) VALUES (?)',(tag,))
-                        newTagId = cur.lastrowid
-                    else:
-                        newTagId = tagData[0][0]
-                    cur.execute('INSERT INTO article_tags (article_id, tag_id) VALUES (?,?)',(articleId,newTagId))
-                    lastRowId = cur.lastrowid'''
             get_db().commit()
             statusCode = True
         except:
