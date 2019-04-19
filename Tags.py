@@ -68,13 +68,15 @@ def api_new_tag(article_id):
             else:
                 return jsonify(message="Failed"),409
 
-#curl --request DELETE --header 'Content-Type: application/json' http://localhost:5100/remove_tags/<article_id>
+#curl --request DELETE --header 'Content-Type: application/json' --data '{"tag_id":["1"]}' http://localhost:5000/remove_tags/<article_id>
 @app.route('/remove_tags/<article_id>', methods = ['DELETE'])
 def api_remove_tags(article_id):
     cur = get_db().cursor()
     status_code :bool= False
+    tag_id = None
     try:
-        cur.execute("DELETE FROM tags WHERE article_id = ?",(article_id,))
+        tag_id = request.get_json()['tag_id']
+        cur.execute('DELETE FROM tags WHERE article_id = ? AND tag_id = ?;',(article_id,tag_id))
         get_db().commit()
         if cur.rowcount >= 1:
             status_code = True
@@ -87,17 +89,15 @@ def api_remove_tags(article_id):
         else:
             return jsonify(message="Tags Deletion Failed"), 409
 
-#curl --request GET --header 'Content-Type: application/json' http://localhost:5100/get_articles_for_tag/<tag_id>
-@app.route('/get_articles_for_tag/<tag_id>', methods = ['GET'])
-def api_get_articles_for_tag(tag_id):
+#curl --request GET --header 'Content-Type: application/json' http://localhost:5000/get_articles_for_tag/<tag_id>
+@app.route('/get_articles_for_tag/<tag_name>', methods = ['GET'])
+def api_get_articles_for_tag(tag_name):
     cur = get_db().cursor()
     no_tags_found:bool = False
     status_code:bool = False
     try:
-        print("here")
-        cur.execute('SELECT article_url from tags where tag_id = ?',(tag_id,))
+        cur.execute("SELECT article_url from tags where tag_name = ?",(tag_name,))
         articles = cur.fetchall()
-        print(len(articles))
         if len(articles) != 0:
             status_code = True
         else:
@@ -123,12 +123,9 @@ def api_get_tags(article_id):
     no_tags_found = False
     status_code = False
     try:
-        print("here wjo")
         cur.execute('SELECT article_id FROM tags WHERE article_id = ?',(article_id,))
-        print("kay zala")
         isArticleIDpresent = cur.fetchall()
         if isArticleIDpresent != None:
-            print("ata ithe")
             cur.execute('SELECT tag_name FROM tags WHERE article_id = ?',(article_id,))
             tags = cur.fetchall()
             if len(tags) != 0:
